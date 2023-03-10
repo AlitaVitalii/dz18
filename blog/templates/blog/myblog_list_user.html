@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+    </ul>
+<h1>My Blog List</h1>
+
+  <li><a href="{% url 'blog_create' %}">blog_create</a></li>
+
+    {% if blog_list %}
+    <ul>
+    <table>
+         <tr>
+    <th>Blog</th>
+    <th>Comments</th>
+    <th>Date</th>
+    <th>Publisher</th>
+    <th></th>
+
+           </tr>
+
+      {% for blog in blog_list %}
+          <tr>
+              <td><a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a> </td>
+              <td>{{blog.comment_set.count}} </td>
+              <td>{{blog.post_date}} </td>
+              <td>{{blog.is_posted}}</td>
+              <td><a href="{% url 'blog_update' blog.pk %}" >Update</a></td>
+
+          </tr>
+
+      {% endfor %}
+      </table>
+    </ul>
+    {% else %}
+      <p>There are no blogs.</p>
+    {% endif %}
+{% endblock %}

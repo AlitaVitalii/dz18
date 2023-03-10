@@ -1,0 +1,37 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+    <ul class="sidebar-nav">
+
+            <li><a href="{% url 'blog_create' %}">Blog create</a></li>
+
+    </ul>
+<h1>Blog List</h1>
+
+    {% if blog_list %}
+    <ul>
+    <table class="table table-striped">
+         <tr>
+    <th>Blog</th>
+    <th>Author</th>
+    <th>Comments</th>
+    <th>Date</th>
+
+           </tr>
+
+      {% for blog in blog_list %}
+          <tr>
+              <td><a href="{{ blog.get_absolute_url }}">{{ blog.title }}</a> </td>
+              <td>{{blog.author}} </td>
+              <td>{{blog.comment_set.count}}</td>
+              <td>{{blog.post_date}}</td>
+          </tr>
+
+      {% endfor %}
+      </table>
+    </ul>
+    {% else %}
+      <p>There are no blogs.</p>
+    {% endif %}
+{% endblock %}

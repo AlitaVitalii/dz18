@@ -1,17 +1,28 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
+
     <h1>All bloggers</h1>
 
     {% if user_list %}
     <ul>
+     <table class="table table-striped">
+             <tr>
+        <th>Blogger</th>
+        <th>Number of blogs</th>
+        <th>Latest blog</th>
+        <th>Last blog date</th>
 
+               </tr>
       {% for user in user_list %}
-      <li>
-        <a href="{% url 'user-detail' user.pk %}">{{ user }}</a>
-      </li>
+      <tr>
+        <td><a href="{% url 'user-detail' user.pk %}">{{ user }}</a></td>
+        <td>  {{ user.blog_set.count }}</td>
+        <td>  {{ user.blog_set.last }}</td>
+        <td>  {{ user.blog_set.last.post_date }}</td>
+      </tr>
       {% endfor %}
-
+     </table>
     </ul>
 
     {% else %}

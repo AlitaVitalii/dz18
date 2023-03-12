@@ -5,14 +5,23 @@
  <li><strong>First name:</strong> {{ user.first_name }} </li>
  <li><strong>Last name:</strong> {{ user.last_name }} </li>
 
-        <dl>
+<table class="table table-striped">
+         <tr>
+    <th>Blog</th>
+    <th>Publication date</th>
+    <th>Comments</th>
+
+         </tr>
+
             {% for blog in user.blog_set.all %}
             {% if blog.is_posted %}
-              <dt><a href="{% url 'blog-detail' blog.pk %}">{{blog.title}}</a>
-                  ({{blog.post_date}})</dt>
+             <tr>
+              <th><a href="{% url 'blog-detail' blog.pk %}">{{blog.title}}</a></th>
+                 <th> {{blog.post_date}} </th>
+                 <th>{{ blog.comment_set.count }}</th>
+                 </tr>
             {% endif %}
             {% endfor %}
-        </dl>
+</table>
 
-    </div>
 {% endblock %}

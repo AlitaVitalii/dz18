@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
@@ -11,7 +13,7 @@ from blog.forms import RegisterForm, EmailForm
 from blog.models import Blog, Comment
 from blog.tasks import send_email_task, send_email_task_to_client
 
-User = get_user_model()
+# User = get_user_model()
 
 
 def index(request):
@@ -58,16 +60,19 @@ def email_create(request):
 class BlogListView(generic.ListView):
     model = Blog
     paginate_by = 10
+
     queryset = Blog.objects.prefetch_related(
-        'comment_set'
+        Prefetch('comment_set', queryset=Comment.objects.filter(is_published=True))
     ).select_related(
         "author"
-    ).filter(is_posted=True).order_by('post_date')
+    ).filter(is_posted=True).order_by('-post_date')
 
 
 class BlogDetailView(generic.DetailView):
     model = Blog
-    queryset = Blog.objects.select_related('author')
+    queryset = Blog.objects.select_related('author').prefetch_related(
+        Prefetch('comment_set', queryset=Comment.objects.filter(is_published=True))
+    )
 
 
 class MyBlogListView(LoginRequiredMixin, generic.ListView):
@@ -76,7 +81,11 @@ class MyBlogListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Blog.objects.prefetch_related('comment_set').filter(author=self.request.user).order_by('post_date')
+        return Blog.objects.prefetch_related(
+            Prefetch('comment_set', queryset=Comment.objects.filter(is_published=True))
+        ).filter(
+            author=self.request.user
+        ).order_by('post_date')
 
 
 class BlogCreate(LoginRequiredMixin, generic.CreateView):
@@ -120,7 +129,6 @@ class CommentCreate(generic.CreateView):
         return super(CommentCreate, self).form_valid(form)
 
     def get_success_url(self):
-
         return reverse('blog-detail', kwargs={'pk': self.kwargs['pk'], })
 
 
@@ -128,11 +136,18 @@ class UserListView(generic.ListView):
     model = User
     template_name = 'blog/user_list.html'
     paginate_by = 10
+    queryset = User.objects.prefetch_related(
+        Prefetch('blog_set', queryset=Blog.objects.filter(is_posted=True))
+    ).order_by('username')
 
 
 class UserDetailView(generic.DetailView):
     template_name = 'blog/user_detail.html'
     model = User
+    queryset = User.objects.prefetch_related(
+        Prefetch('blog_set', queryset=Blog.objects.prefetch_related(
+            Prefetch('comment_set', queryset=Comment.objects.filter(is_published=True))))
+    )
 
 
 class RegisterFormView(generic.FormView):

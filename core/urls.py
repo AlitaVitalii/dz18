@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.views.generic import RedirectView
+
 from blog.views import RegisterFormView, UserProfile, UpdateProfile, email_create
 
 urlpatterns = [
+    path("", RedirectView.as_view(url="/blog/")),
     path('admin/', admin.site.urls),
     path('blog/', include('blog.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
@@ -26,7 +29,6 @@ urlpatterns = [
     path('accounts/my_profile/', UserProfile.as_view(), name="profile"),
     path('accounts/update_profile/', UpdateProfile.as_view(), name="update_profile"),
 
-    # path('email/', email_form, name='contact'),
     path('email/', email_create, name='email-name'),
 
 ]

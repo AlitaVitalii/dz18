@@ -28,13 +28,14 @@ class Command(BaseCommand):
         ) for _ in range(10)])
 
         for u in users:
+            list_date = sorted([fake.date() for _ in range(5)])
             blogs = Blog.objects.bulk_create([Blog(
                 title=fake.text(max_nb_chars=20),
                 text=fake.paragraph(nb_sentences=5),
                 author=u,
-                post_date=fake.date(),
+                post_date=list_date[i],
                 is_posted=random.choice([True, False]),
-            ) for _ in range(5)])
+            ) for i in range(5)])
 
             for b in blogs:
                 Comment.objects.bulk_create([Comment(
@@ -44,4 +45,4 @@ class Command(BaseCommand):
                     is_published=random.choice([True, False]),
                 )for _ in range(3)])
 
-        self.stdout.write(self.style.SUCCESS(f"Created 50-blogs, 10-users, 150-comments"))
+        self.stdout.write(self.style.SUCCESS("Created 50-blogs, 10-users, 150-comments"))
